@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Item
+from .models import Restaurant,Item
 from .forms import RestaurantForm, ItemForm, SignupForm, SigninForm
 from django.contrib.auth import login, authenticate, logout
 from django.db.models import Q
@@ -9,7 +9,7 @@ def no_access(request):
 
 def signup(request):
     form = SignupForm
-    if request.method == 'POST':
+    if request.method == 'POST': 
         form = SignupForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
@@ -25,9 +25,9 @@ def signup(request):
     return render(request, 'signup.html', context)
 
 def signin(request):
-    form = LoginForm()
+    form = SigninForm()
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = SigninForm(request.POST)
         if form.is_valid():
 
             username = form.cleaned_data['username']
@@ -47,28 +47,28 @@ def signout(request):
     return redirect("signin")
 
 def restaurant_list(request):
-    restaurants = Restaurant.objects.all()
-    query = request.GET.get('q')
-    if query:
-        restaurants = restaurants.filter(
-            Q(name__icontains=query)|
-            Q(description__icontains=query)|
-            Q(owner__username__icontains=query)
-        ).distinct()
-    context = {
-       "rest_list": restaurants
-    }
-    return render(request, 'restaurant_list.html', context)
+   restaurants = Restaurant.objects.all()
+   query = request.GET.get('q')
+   if query:
+       restaurants = restaurants.filter(
+           Q(name__icontains=query)|
+           Q(description__icontains=query)|
+           Q(owner__username__icontains=query)
+       ).distinct()
+   context = {
+      "restaurants": restaurants
+   }
+   return render(request, 'list.html', context)
 
 
 def restaurant_detail(request, restaurant_id):
-    restaurant = Restaurant.objects.get(id=res_id)
-    items = Item.objects.filter(restaurant=restaurant)
-    context = {
-        "restaurant": restaurant,
-        "items": items,
-    }
-    return render(request, 'detail.html', context)
+   restaurant = Restaurant.objects.get(id=restaurant_id)
+   items = Item.objects.filter(restaurant=restaurant)
+   context = {
+       "restaurant": restaurant,
+       "items": items,
+   }
+   return render(request, 'detail.html', context)
 
 def restaurant_create(request):
     if request.user.is_anonymous:
